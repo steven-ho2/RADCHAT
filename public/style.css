@@ -3,7 +3,6 @@
 html, body {
     font: 13px Helvetica, Arial;
     background: #2E3442;
-
     width: 100%;
     height: 100%;
 }
@@ -12,8 +11,6 @@ html, body {
     margin: 5px;
     width: 80%;
     background: #DAD2CF;
-    position: relative;
-    overflow: none;
 }
 
 #left > h3 {
@@ -26,8 +23,6 @@ html, body {
 #left > ul {
     width: 100%;
     height: 100%;
-    position: absolute;
-    bottom: 0;
 }
 
 #right {
