@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <title>RAD CHAT APP</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+
+    <div id="chat">
+
+      <div id="left" >
+        <h3 id="username"></h3>
+        <ul id="messages"></ul>
+      </div>
+
+      <div id="right" >
+        <h3 id="group">Group</h3>
+        <ul id="members"></ul>
+      </div>
+      
+    </div>
+
+    <div id="text-box">
+      <form action="" >
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
+
+    <script
+       src="https://code.jquery.com/jquery-3.1.1.min.js"
+       integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+       crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/client.js"></script>
+  </body>
+
+</html>
