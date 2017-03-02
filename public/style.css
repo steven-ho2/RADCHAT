@@ -1,6 +1,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { 
+html, body {
     font: 13px Helvetica, Arial;
     background: #2E3442;
 
@@ -11,7 +11,9 @@ html, body {
 #left {
     margin: 5px;
     width: 80%;
-    background: #8A8D96;
+    background: #DAD2CF;
+    position: relative;
+    overflow: none;
 }
 
 #left > h3 {
@@ -24,12 +26,14 @@ html, body {
 #left > ul {
     width: 100%;
     height: 100%;
+    position: absolute;
+    bottom: 0;
 }
 
 #right {
     margin: 5px;
     width: 20%;
-    background: #8A8D96;
+    background: #DAD2CF;
 }
 
 #right > h3 {
@@ -45,7 +49,8 @@ html, body {
 }
 
 #chat {
-    min-height: 95%;
+    height: 95%;
+    min-height: 800px;
     margin: 0px;
     padding: 0px;
     display: flex;
@@ -73,53 +78,55 @@ html, body {
     min-height: 10px;
 }
 
-form { 
-    background: #000; 
-    padding: 3px; 
-    position: fixed; 
-    bottom: 0; 
-    width: 100%; 
+form {
+    background: #000;
+    padding: 3px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
-form input { 
-    border: 0; 
-    padding: 10px; 
-    width: 90%; 
-    margin-right: .5%; 
+form input {
+    border: 0;
+    padding: 10px;
+    width: 90%;
+    margin-right: .5%;
 }
 
-form button { 
-    width: 9%; 
-    background: rgb(130, 224, 255); 
-    border: none; 
-    padding: 10px; 
+form button {
+    width: 9%;
+    background: rgb(130, 224, 255);
+    border: none;
+    padding: 10px;
 }
 
-#messages { 
-    list-style-type: none; 
-    margin: 0; 
+#left > #messages {
+    height: 94%;
+    list-style-type: none;
+    margin: 0;
     padding: 0;
     overflow-y: auto;
 }
-#messages li { 
+#left > #messages li {
+    width: 100%;
     padding: 5px 10px;
-    background: #DAD2CF; 
+    background: #DAD2CF;
 }
 
-#messages li:nth-child(odd) { 
-    background: #eee; 
+#left > #messages li:nth-child(odd) {
+    background: #eee;
 }
 
-#members { 
-    list-style-type: none; 
-    margin: 0; 
-    padding: 0; 
+#members {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
-#members li { 
-    padding: 5px 10px; 
-    background: #DAD2CF; 
+#members li {
+    padding: 5px 10px;
+    background: #DAD2CF;
 }
 
-#members li:nth-child(odd) { 
-    background: #eee; 
+#members li:nth-child(odd) {
+    background: #eee;
 }

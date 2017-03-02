@@ -15,18 +15,17 @@ app.use(express.static(__dirname + '/public'));
 // listen to 'chat' messages
 io.on('connection', function(socket){
 
-    socket.on('chat', function(data){
-	var time = getSentTime();
-	io.emit('chat', {'time': time, 'msg': data.msg});
-	msgLog.push({'sender': data.username, 'time': time, 'msg': data.msg});
-    });
-	
-    socket.on('name', function(){
-	var name = makeUserName();
-	io.emit('name', {'username' : name});
+  socket.on('chat', function(data){
+  	var time = getSentTime();
+  	io.emit('chat', {'time': time, 'msg': data.msg});
+  	msgLog.push({'sender': data.username, 'time': time, 'msg': data.msg});
+  });
 
-    });
-	
+  socket.on('name', function(){
+  	var name = makeUserName();
+  	io.emit('name', {'username' : name});
+  });
+
 });
 
 //Get the time the message was sent
@@ -34,7 +33,7 @@ function getSentTime(){
 	var d = new Date();
 	var str = d.toUTCString();
 	return str.match(/[0-9][0-9]:[0-9][0-9]/);
-}	
+}
 
 
 //This will make the user name
