@@ -5,6 +5,8 @@ var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
 var msgLog = [];
+var users = [];
+var num_users = 0;
 
 http.listen( port, function () {
     console.log('listening on port', port);
@@ -17,13 +19,19 @@ io.on('connection', function(socket){
 
   socket.on('chat', function(data){
   	var time = getSentTime();
-  	io.emit('chat', {'time': time, 'msg': data.msg});
-  	msgLog.push({'sender': data.username, 'time': time, 'msg': data.msg});
+  	io.emit('chat', {'time': time, 'msg': data.msg, 'username': data.name });
+  	msgLog.push({'sender': data.name, 'time': time, 'msg': data.msg});
   });
 
   socket.on('name', function(){
   	var name = makeUserName();
   	io.emit('name', {'username' : name});
+	num_users++;
+	users.push({'username' : name});
+  });
+
+  socket.on('group',function(){
+	  io.emit('group',users);
   });
 
 });

@@ -12,9 +12,14 @@ $(function() {
        $('#username').text("Your username name is: " + username);
     });
 
+    socket.emit('group');
+    socket.on('group',function(data){
+      $('#members').append($('<li>').text(data[0].username));
+    });
+
 
     $('form').submit(function(){
-    	socket.emit('chat', {'name' : username, 'msg' : $('#m').val()});
+    	socket.emit('chat', {'name' : username.toString() , 'msg' : $('#m').val()});
     	$('#m').val('');
     	return false;
     });
@@ -22,7 +27,7 @@ $(function() {
 
 
     socket.on('chat', function(data){
-      $('#messages').append($('<li>').text(data.time + ' ' + username + ": "+ data.msg));
+      $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
     });
 
 });
