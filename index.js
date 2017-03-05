@@ -6,7 +6,6 @@ var port = process.env.PORT || 3000;
 
 var msgLog = [];
 var users = [];
-var num_users = 0;
 
 http.listen( port, function () {
     console.log('listening on port', port);
@@ -17,22 +16,61 @@ app.use(express.static(__dirname + '/public'));
 // listen to 'chat' messages
 io.on('connection', function(socket){
 
-  socket.on('chat', function(data){
-  	var time = getSentTime();
-  	io.emit('chat', {'time': time, 'msg': data.msg, 'username': data.name });
-  	msgLog.push({'sender': data.name, 'time': time, 'msg': data.msg});
-  });
+	socket.on('chat', function(data){
 
-  socket.on('name', function(){
-  	var name = makeUserName();
-  	io.emit('name', {'username' : name});
-	num_users++;
-	users.push({'username' : name});
-  });
 
-  socket.on('group',function(){
-	  io.emit('group',users);
-  });
+		var time = getSentTime();
+		io.emit('chat', {'time': time, 'msg': data.msg, 'username': data.name });
+
+		if(msgLog.length + 1 > 200){
+			msgLog.splice(0,1);
+		}
+		msgLog.push({'sender': data.name, 'time': time, 'msg': data.msg});
+
+	});
+
+	socket.on('load', function(){
+
+		if(msgLog !== null){
+			
+			for(var i = 0; i < msgLog.length; i++){
+				socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender});
+			}
+		}
+
+		var name = makeUserName();
+		if(users !== null){
+			var matching = true;
+			while(matching){
+				matching = false;
+				for(var i = 0; i < users.length; i ++){
+					if(users[i].username === name){
+						matching = true;
+						name = makeUserName();
+						break;
+					}
+				}
+			}
+		}
+
+		socket.emit('name', {'username' : name});
+		users.push({'id': socket.id,'username': name, 'nick': null,'nickcolor':null});
+	});
+
+	socket.on('group',function(){
+		io.emit('group',users);
+	});
+
+	socket.on('disconnect', function(){
+
+		for(var i = 0; i < users.length; i++){
+			if(users[i].id === socket.id){
+				users.splice(i,1);
+			}
+		}
+
+		io.emit('group',users);
+	});
 
 });
 
