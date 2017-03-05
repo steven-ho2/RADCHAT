@@ -61,11 +61,37 @@ io.on('connection', function(socket){
 		io.emit('group',users);
 	});
 
+	socket.on('updateUsername', function(data){
+		
+		var target;
+
+		for( var i = 0; i < users.length; i++){
+			if(users[i].id === socket.id){
+				target = i;
+			}
+			if(users[i].username === data.newName){
+				socket.emit('alert',{'msg': "Name is already taken!"});
+				return;
+			}
+		}
+
+		users[target].username = data.newName;
+		socket.emit('name', {'username' : users[target].username});
+		io.emit('group',users);
+		socket.emit('alert',{'msg': "Your username has been changed successfully"});
+
+	});
+
+	socket.on('updateColor', function(data){
+		
+	});
+
 	socket.on('disconnect', function(){
 
 		for(var i = 0; i < users.length; i++){
 			if(users[i].id === socket.id){
 				users.splice(i,1);
+				break;
 			}
 		}
 
