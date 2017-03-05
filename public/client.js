@@ -85,7 +85,11 @@ $(function() {
     socket.on('chat', function(data){
       if(data.color !== null){
 
-        $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
+        var span = "<span style=" + '"' + "color:" + data.color + ';'+ '"' + '>'+ data.username + "</span>";
+        var toAppend = data.time + ' ' + span + ' ' + ": " + data.msg;
+        toAppend = "<li>" + toAppend + "</li>";
+        $('#messages').append(toAppend);
+
       }
       else{
         $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));

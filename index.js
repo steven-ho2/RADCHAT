@@ -77,7 +77,7 @@ io.on('connection', function(socket){
 
 	socket.on('updateColor', function(data){
 		var color = data.newColor;
-		if(!color.match(/[a-f0-8]{6}/)){
+		if(!color.match(/[a-f0-9]{6}/i)){
 			socket.emit('alert',{'msg': "Invalid Color Option"});
 			return;
 		}
