@@ -61,9 +61,8 @@ $(function() {
 
         if(iscmd2){
 
-          var res = txt.slice(cmd2.length,(txt.length-1));
-
-          socket.emit('updateColor',{'newName': res});
+          var res = txt.slice(cmd2.length,(txt.length));
+          socket.emit('updateColor',{'newColor': res});
           $('#m').val('');
           return false;
         }
@@ -84,7 +83,14 @@ $(function() {
 
 
     socket.on('chat', function(data){
-      $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
+      if(data.color !== null){
+
+        $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
+      }
+      else{
+        $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
+      }
+      
     });
 
     socket.on('disconnect',function(){

@@ -18,43 +18,40 @@ io.on('connection', function(socket){
 
 	socket.on('chat', function(data){
 
-
+		var index = getIndexOf(socket.id);
+		var color = users[index].nickcolor;
 		var time = getSentTime();
-		io.emit('chat', {'time': time, 'msg': data.msg, 'username': data.name });
+
+		io.emit('chat', {'time': time, 'msg': data.msg, 'username': data.name , 'color': color});
 
 		if(msgLog.length + 1 > 200){
 			msgLog.splice(0,1);
 		}
-		msgLog.push({'sender': data.name, 'time': time, 'msg': data.msg});
+		msgLog.push({'sender': data.name, 'time': time, 'msg': data.msg,'color': color});
 
 	});
 
 	socket.on('load', function(){
 
 		if(msgLog !== null){
-			
 			for(var i = 0; i < msgLog.length; i++){
-				socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender});
+				socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender, 'color': msgLog[i].color});
 			}
 		}
 
 		var name = makeUserName();
+		var nametaken = nameTaken(name);
+
 		if(users !== null){
-			var matching = true;
-			while(matching){
-				matching = false;
-				for(var i = 0; i < users.length; i ++){
-					if(users[i].username === name){
-						matching = true;
-						name = makeUserName();
-						break;
-					}
-				}
+
+			while(nametaken){
+				name = makeUserName();
+				nametaken = nameTaken(name);
 			}
 		}
 
 		socket.emit('name', {'username' : name});
-		users.push({'id': socket.id,'username': name, 'nick': null,'nickcolor':null});
+		users.push({'id': socket.id,'username': name,'nickcolor':null});
 	});
 
 	socket.on('group',function(){
@@ -63,42 +60,77 @@ io.on('connection', function(socket){
 
 	socket.on('updateUsername', function(data){
 		
-		var target;
+		
+		var index = getIndexOf(socket.id);
 
-		for( var i = 0; i < users.length; i++){
-			if(users[i].id === socket.id){
-				target = i;
-			}
-			if(users[i].username === data.newName){
-				socket.emit('alert',{'msg': "Name is already taken!"});
-				return;
-			}
+		if(nameTaken(data.newName)){
+			socket.emit('alert',{'msg': "Name is already taken!"});
+			return;
 		}
 
-		users[target].username = data.newName;
-		socket.emit('name', {'username' : users[target].username});
+		users[index].username = data.newName;
+		socket.emit('name', {'username' : users[index].username});
 		io.emit('group',users);
 		socket.emit('alert',{'msg': "Your username has been changed successfully"});
 
 	});
 
 	socket.on('updateColor', function(data){
-		
+		var color = data.newColor;
+		if(!color.match(/[a-f0-8]{6}/)){
+			socket.emit('alert',{'msg': "Invalid Color Option"});
+			return;
+		}
+		else{
+
+			var index = getIndexOf(socket.id);
+
+			users[index].nickcolor = "#" + color;
+			socket.emit('alert',{'msg': "Your name color has been changed successfully"});
+
+		}
+
+
 	});
 
 	socket.on('disconnect', function(){
 
-		for(var i = 0; i < users.length; i++){
-			if(users[i].id === socket.id){
-				users.splice(i,1);
-				break;
-			}
-		}
+		var index = getIndexOf(socket.id);
+		
+		(index !== -1) ? users.splice(index,1) : socket.emit('alert',{'msg': "Could not find user"});
 
 		io.emit('group',users);
 	});
 
 });
+
+
+//Get the Index of the user by Socket id
+function getIndexOf(socketID){
+
+	var index;
+	var found = false;
+	for(var i = 0; i < users.length; i++){
+		if(users[i].id === socketID){
+			index = i;
+			found = true;
+			break;
+		}
+	}
+	return (found) ? index : -1;
+}
+
+function nameTaken(name){
+
+	var taken = false;
+	for(var i = 0; i < users.length; i++){
+		if(users[i].username === name){
+			taken = true;
+			break;
+		}
+	}
+	return taken;
+}
 
 //Get the time the message was sent
 function getSentTime(){
