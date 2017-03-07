@@ -85,14 +85,18 @@ $(function() {
     socket.on('chat', function(data){
       if(data.color !== null){
 
-        var span = "<span style=" + '"' + "color:" + data.color + ';'+ '"' + '>'+ data.username + "</span>";
+        var styles = "color:" + data.color + ';'; 
+        if(username !== data/username){
+          styles += "font-weight: bold;";
+        }
+        var span = "<span style=" + '"' + styles + '"' + '>'+ data.username + "</span>";
         var toAppend = data.time + ' ' + span + ' ' + ": " + data.msg;
         toAppend = "<li>" + toAppend + "</li>";
         $('#messages').append(toAppend);
 
       }
       else{
-        $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg));
+        (username === data.username) ? $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg)) : $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg).css('font-weight','bold'));
       }
       
     });
