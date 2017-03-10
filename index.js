@@ -3,12 +3,36 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
+var cookieParser = require('cookie-parser');
 
 var msgLog = [];
 var users = [];
 
 http.listen( port, function () {
     console.log('listening on port', port);
+});
+
+app.use(cookieParser());
+
+// from http://stackoverflow.com/questions/16209145/how-to-set-cookie-in-node-js-using-express-framework
+app.use(function (req, res, next) {
+  // check if client sent cookie
+  var cookie = req.cookies.cookieName;
+  if (cookie === undefined)
+  {
+    // no: set a new cookie
+    var randomNumber=Math.random().toString();
+    randomNumber=randomNumber.substring(2,randomNumber.length);
+    res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
+    console.log('cookie created successfully');
+  } 
+  else
+  {
+    // yes, cookie was already present 
+    console.log('cookie exists', cookie);
+  }
+
+  next(); // <-- important!
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -33,6 +57,20 @@ io.on('connection', function(socket){
 
 	socket.on('load', function(){
 
+		var index = getIndexOfCookie(getCookieName(socket));
+		if(index >= 0){
+			var name = users[index].name;
+			users[index].id = socket.id;
+			users[index].display = true;
+			socket.emit('name', {'username' : name});
+			if(msgLog !== null){
+				for(var i = 0; i < msgLog.length; i++){
+					socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender, 'color': msgLog[i].color});
+				}
+			}
+			return;
+		}
+
 		if(msgLog !== null){
 			for(var i = 0; i < msgLog.length; i++){
 				socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender, 'color': msgLog[i].color});
@@ -51,7 +89,7 @@ io.on('connection', function(socket){
 		}
 
 		socket.emit('name', {'username' : name});
-		users.push({'id': socket.id,'username': name,'nickcolor':null});
+		users.push({'id': socket.id,'username': name,'nickcolor':null,'cookieName':getCookieName(socket),'display': true});
 	});
 
 	socket.on('group',function(){
@@ -95,15 +133,28 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 
-		var index = getIndexOf(socket.id);
+		var index = getIndexOfCookie(getCookieName());
 		
-		(index !== -1) ? users.splice(index,1) : socket.emit('alert',{'msg': "Could not find user"});
+		if (users[index] !== null){ 
+			users[index].display = false;
+		}
+
+		//(index !== -1) ? users.splice(index,1) : socket.emit('alert',{'msg': "Could not find user"});
 
 		io.emit('group',users);
 	});
 
 });
 
+function getCookieName(socket){
+
+	var cookieName = socket.request.headers.cookie.match(/cookieName=[0-9]*;/i);
+	if(cookieName !== null){
+		cookieName = cookieName[0].split("=")[1];
+		cookieName = cookieName.split(";")[0];
+	}
+	return cookieName;
+}
 
 //Get the Index of the user by Socket id
 function getIndexOf(socketID){
@@ -112,6 +163,33 @@ function getIndexOf(socketID){
 	var found = false;
 	for(var i = 0; i < users.length; i++){
 		if(users[i].id === socketID){
+			index = i;
+			found = true;
+			break;
+		}
+	}
+	return (found) ? index : -1;
+}
+
+function nameTaken(name){
+
+	var taken = false;
+	for(var i = 0; i < users.length; i++){
+		if(users[i].username === name){
+			taken = true;
+			break;
+		}
+	}
+	return taken;
+}
+
+//
+function getIndexOfCookie(cookieName){
+
+	var index;
+	var found = false;
+	for(var i = 0; i < users.length; i++){
+		if(users[i].cookieName === cookieName){
 			index = i;
 			found = true;
 			break;

@@ -19,7 +19,9 @@ $(function() {
       $('#members').empty();
 
       $.each(data, function(i,item){
-        $('#members').append($('<li>').text(data[i].username));
+        if(data[i].display){
+          $('#members').append($('<li>').text(data[i].username));
+        }
       })
       
     });
@@ -101,8 +103,8 @@ $(function() {
       
     });
 
-    socket.on('disconnect',function(){
-      socket.emit('disconnect',{'username': username});
-    });
+    // socket.on('disconnect',function(){
+    //   socket.emit('disconnect',{'username': username});
+    // });
 
 });
