@@ -100,16 +100,22 @@ form button {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
+    transform: rotate(-180deg);
+    transform: rotateX(-180deg);
 }
 #left > #messages li {
     width: 100%;
     padding: 5px 10px;
     background: #DAD2CF;
+    transform: rotate(180deg);
+    transform: rotateX(180deg);
 }
 
 #left > #messages li:nth-child(odd) {
     background: #eee;
+    transform: rotate(180deg);
+    transform: rotateX(180deg);
 }
 
 #members {

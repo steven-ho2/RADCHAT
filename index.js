@@ -40,6 +40,15 @@ app.use(express.static(__dirname + '/public'));
 // listen to 'chat' messages
 io.on('connection', function(socket){
 
+	var cookie = socket.handshake.headers.cookie.toString();
+	if(cookie !== null && cookie !== undefined){
+		// cookies = cookie.match(/cookieName=[0-9]*;/i);
+		cookie = cookie.split(";")[0];
+		cookie = cookie.split("=")[1];
+		console.log(cookie);
+		
+	}
+
 	socket.on('chat', function(data){
 
 		var index = getIndexOf(socket.id);
@@ -57,17 +66,20 @@ io.on('connection', function(socket){
 
 	socket.on('load', function(){
 
-		var index = getIndexOfCookie(getCookieName(socket));
+		var index = getIndexOfCookie(cookie);
 		if(index >= 0){
-			var name = users[index].name;
+			var name = users[index].username;
 			users[index].id = socket.id;
 			users[index].display = true;
 			socket.emit('name', {'username' : name});
+			io.emit('group',users);
+
 			if(msgLog !== null){
 				for(var i = 0; i < msgLog.length; i++){
 					socket.emit('chat',{'time': msgLog[i].time, 'msg': msgLog[i].msg, 'username': msgLog[i].sender, 'color': msgLog[i].color});
 				}
 			}
+
 			return;
 		}
 
@@ -89,7 +101,7 @@ io.on('connection', function(socket){
 		}
 
 		socket.emit('name', {'username' : name});
-		users.push({'id': socket.id,'username': name,'nickcolor':null,'cookieName':getCookieName(socket),'display': true});
+		users.push({'id': socket.id,'username': name,'nickcolor':null,'cookieName':cookie,'display': true});
 	});
 
 	socket.on('group',function(){
@@ -133,9 +145,9 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 
-		var index = getIndexOfCookie(getCookieName());
+		var index = getIndexOfCookie(cookie);
 		
-		if (users[index] !== null){ 
+		if (index >= 0){ 
 			users[index].display = false;
 		}
 
@@ -145,16 +157,6 @@ io.on('connection', function(socket){
 	});
 
 });
-
-function getCookieName(socket){
-
-	var cookieName = socket.request.headers.cookie.match(/cookieName=[0-9]*;/i);
-	if(cookieName !== null){
-		cookieName = cookieName[0].split("=")[1];
-		cookieName = cookieName.split(";")[0];
-	}
-	return cookieName;
-}
 
 //Get the Index of the user by Socket id
 function getIndexOf(socketID){
@@ -171,28 +173,18 @@ function getIndexOf(socketID){
 	return (found) ? index : -1;
 }
 
-function nameTaken(name){
-
-	var taken = false;
-	for(var i = 0; i < users.length; i++){
-		if(users[i].username === name){
-			taken = true;
-			break;
-		}
-	}
-	return taken;
-}
-
 //
 function getIndexOfCookie(cookieName){
 
 	var index;
 	var found = false;
-	for(var i = 0; i < users.length; i++){
-		if(users[i].cookieName === cookieName){
-			index = i;
-			found = true;
-			break;
+	if(users !== null){
+		for(var i = 0; i < users.length; i++){
+			if(users[i].cookieName === cookieName){
+				index = i;
+				found = true;
+				break;
+			}
 		}
 	}
 	return (found) ? index : -1;

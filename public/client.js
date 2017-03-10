@@ -85,22 +85,33 @@ $(function() {
 
 
     socket.on('chat', function(data){
-      if(data.color !== null){
 
+      if(data.color !== null){
         var styles = "color:" + data.color + ';'; 
-        if(username !== data/username){
-          styles += "font-weight: bold;";
-        }
+
         var span = "<span style=" + '"' + styles + '"' + '>'+ data.username + "</span>";
         var toAppend = data.time + ' ' + span + ' ' + ": " + data.msg;
-        toAppend = "<li>" + toAppend + "</li>";
-        $('#messages').append(toAppend);
+        if(username !== data.username){
+          toAppend = "<li style=" + '"' + "font-weight: bold;" + '"' + '>' + toAppend + "</li>";
+        }
+        else{
+          toAppend = "<li>" + toAppend + "</li>";
+        }
+
+        $('#messages').prepend(toAppend);
 
       }
       else{
-        (username === data.username) ? $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg)) : $('#messages').append($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg).css('font-weight','bold'));
+
+        if(username === data.username ){
+          $('#messages').prepend($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg))
+        }
+        else{
+          $('#messages').prepend($('<li>').text(data.time + ' ' + data.username + ": "+ data.msg).css('font-weight','bold'));
+        }
+
       }
-      
+
     });
 
     // socket.on('disconnect',function(){
